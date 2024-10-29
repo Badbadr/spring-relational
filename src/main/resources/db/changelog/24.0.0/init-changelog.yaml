@@ -1,0 +1,123 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Kamil Badrutdinov
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              tableName: project
+      changes:
+        - createTable:
+            tableName: project
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+  - changeSet:
+      id: 2
+      author: Kamil Badrutdinov
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              tableName: task
+      changes:
+        - createTable:
+            tableName: task
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 3
+      author: Kamil Badrutdinov
+      preConditions:
+        - onFail: CONTINUE
+        - not:
+          - columnExists:
+              columnName: project
+              tableName: task
+      changes:
+        - addColumn:
+            tableName: task
+            columns:
+              - column:
+                  name: project
+                  type: UUID
+      rollback:
+        - dropColumn:
+            tableName: task
+            columns:
+              - column:
+                  name: project
+
+  - changeSet:
+      id: 4
+      author: Kamil Badrutdinov
+      preConditions:
+        - onFail: CONTINUE
+        - not:
+            - columnExists:
+                columnName: name
+                tableName: project
+      changes:
+        - addColumn:
+            tableName: project
+            columns:
+              - column:
+                  name: name
+                  type: varchar
+      rollback:
+        - dropColumn:
+            tableName: project
+            columns:
+              - column:
+                  name: name
+
+  - changeSet:
+      id: 5
+      author: Kamil Badrutdinov
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              tableName: comment
+      changes:
+        - createTable:
+            tableName: comment
+            columns:
+              - column:
+                  name: comment_id
+                  type: int8
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: task_id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    foreignKeyName: fk_comment_task
+                    references: task(id)
+                    nullable: false
+              - column:
+                  name: author
+                  type: varchar
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content
+                  type: text
